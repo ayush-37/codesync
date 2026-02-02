@@ -1,61 +1,55 @@
 class Solution {
 public:
     long long minimumCost(vector<int>& nums, int k, int dist) {
-        int n = nums.size();
         long long ans = LLONG_MAX;
+        int n = nums.size();
 
-        multiset<long long> small, large;
-        long long sumSmall = 0;
-        int need = k - 2;
+        long long size = k-2, sum = 0;
 
-        auto add = [&](long long x){
-            if(small.size() < need){
+        multiset<long long> large,small;
+
+        auto inst = [&](long long x){
+            if(small.size() < size){
                 small.insert(x);
-                sumSmall += x;
-            } else {
-                if(need && x < *prev(small.end())){
-                    long long y = *prev(small.end());
+                sum += x;
+            }
+            else{
+                if(size && x < *prev(small.end())){
+                    long long tx = *prev(small.end());
                     small.erase(prev(small.end()));
-                    sumSmall -= y;
-                    large.insert(y);
-
+                    large.insert(tx);
+                    sum -= tx;
                     small.insert(x);
-                    sumSmall += x;
-                } else {
-                    large.insert(x);
+                    sum += x;
                 }
+                else large.insert(x);
             }
         };
 
-        auto remove = [&](long long x){
+        auto ers = [&](long long x){
             if(small.find(x) != small.end()){
                 small.erase(small.find(x));
-                sumSmall -= x;
-            } else {
+                sum -= x;
+            }
+            else{
                 large.erase(large.find(x));
             }
 
-            if(small.size() < need && !large.empty()){
-                long long y = *large.begin();
+            if(small.size() < size && !large.empty()){
+                long long tx = *large.begin();
                 large.erase(large.begin());
-                small.insert(y);
-                sumSmall += y;
+                small.insert(tx);
+                sum += tx;
             }
         };
 
-        // initialize first window for i = 1
-        for(int j = 2; j <= 1 + dist; j++)
-            add(nums[j]);
+        for(int i = 2; i <= dist+1; i++)inst(nums[i]);
 
-        for(int i = 1; i < n - need; i++){
-            long long cur = nums[0] + nums[i] + sumSmall;
-            ans = min(ans, cur);
+        for(int i = 1; i < n - size; i++){
+            ans = min(ans, (long long)(nums[0]+nums[i]+sum));
 
-            // slide window
-            if(i + dist + 1 < n)
-                add(nums[i + dist + 1]);
-
-            remove(nums[i + 1]);
+            if(i+dist+1 < n)inst(nums[i+dist+1]);
+            ers(nums[i+1]);
         }
 
         return ans;
