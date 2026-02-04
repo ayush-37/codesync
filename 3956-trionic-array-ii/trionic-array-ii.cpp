@@ -2,38 +2,28 @@ class Solution {
 public:
     long long maxSumTrionic(vector<int>& nums) {
         int n = nums.size();
-        vector<vector<long long>> dec;
-        long long l = 0, sum = nums[0];
-        for(int i = 1; i < n; i++){
-            if(nums[i-1] <= nums[i]){
-                dec.push_back({l,i-1,sum});
-                sum = 0;
-                l = i;
+        long long ans = LLONG_MIN, psum = nums[0];
+        for(int l = 0, p = 0, q = 0, r = 1; r < n; r++){
+            psum += nums[r];
+            if(nums[r] == nums[r-1]){
+                psum = nums[r];
+                l = r;
             }
-            sum+=nums[i];
-        }
-        dec.push_back({l,n-1,sum});
-
-
-        vector<long long> end(n);
-        for(int i = 0; i < n; i++)end[i] = nums[i];
-        for(int i = 1; i < n; i++){
-            if(nums[i] > nums[i-1] && end[i-1] > 0)end[i] += end[i-1];
-        }
-        vector<long long> start(n);
-        for(int i = 0; i < n; i++)start[i] = nums[i];
-        for(int i = n-2; i >= 0; i--){
-            if(nums[i] < nums[i+1] && start[i+1] > 0)start[i] += start[i+1];
-        }
-
-        long long ans = LLONG_MIN;
-        for(auto v: dec){
-            long long p = v[0], q = v[1], sum = v[2];
-            if(p > 0 && nums[p-1] < nums[p] &&
-               q < n - 1 && nums[q] < nums[q + 1] &&
-               p < q){
-                ans = max(ans,end[p-1] + sum + start[q+1]);
+            else if(nums[r] < nums[r-1]){
+                // find peak
+                if(r > 1 && nums[r-2] < nums[r-1]){
+                    p = r-1;
+                    while(l < q)psum -= nums[l++];
+                    while(l+1 < p && nums[l] < 0)psum -= nums[l++];
+                }
             }
+            else{
+                if(r > 1 && nums[r-2] > nums[r-1]){
+                    // find valley
+                    q = r-1; 
+                }
+            }
+            if(l < p && p < q)ans = max(ans,psum);
         }
         return ans;
     }
