@@ -2,8 +2,10 @@ class Solution {
 public:
     int longestBalanced(vector<int>& nums) {
         int cnt = 0;
+        set<int> odd,eve;
         for(int i = 0; i < nums.size()-1; i++){
-            set<int> odd,eve;
+            odd.clear();
+            eve.clear();
             if(nums[i]%2)odd.insert(nums[i]);
             else eve.insert(nums[i]);
             for(int j = i+1; j < nums.size(); j++){
