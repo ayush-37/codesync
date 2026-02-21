@@ -1,11 +1,11 @@
 class Solution {
 public:
     int countPrimeSetBits(int left, int right) {
-        vector<int> v(1e6+2,0);
+        vector<int> v(32,0);
         v[0] = 1, v[1] = 1;
-        for(int i = 2; i < 1e6+2; i++){
+        for(int i = 2; i < 32; i++){
             if(v[i])continue;
-            for(int j = i*2; j < 1e6+2; j += i)v[j] = 1;
+            for(int j = i*2; j < 32; j += i)v[j] = 1;
         }
 
         int cnt = 0;
