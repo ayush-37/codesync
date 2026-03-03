@@ -32,7 +32,6 @@ class LFUCache {
         tail->prev = node;
         mp[key] = node;
         cnt[use+1]++;
-        st.insert(use+1);
     }
 
     void removeNode(Node* node){
@@ -46,7 +45,6 @@ class LFUCache {
         mp.erase(temp->key);
         cnt[temp->use]--;
         if(cnt[temp->use] == 0){
-            st.erase(temp->use);
             cnt.erase(temp->use);
         }
         delete(temp);
@@ -54,7 +52,7 @@ class LFUCache {
     }
 
     void removeHead(){
-        int least = *st.begin();
+        int least = mini;
         Node* head = toHead[least];
         Node* temp = head->next;
 
@@ -66,7 +64,6 @@ class LFUCache {
         mp.erase(temp->key);
         cnt[temp->use]--;
         if(cnt[temp->use] == 0){
-            st.erase(temp->use);
             cnt.erase(temp->use);
         }
         delete(temp);
@@ -76,11 +73,12 @@ class LFUCache {
     unordered_map<int,Node*> mp;
     unordered_map<int,Node*> toTail;
     unordered_map<int,Node*> toHead;
-    set<int> st;
+    int mini;
     int cap;
 public:
     LFUCache(int capacity) {
         cap = capacity;
+        mini = 0;
     }
     
     int get(int key) {
@@ -91,6 +89,7 @@ public:
             int k = key;
 
             removeNode(node);
+            if(mini == u && !cnt.count(u))mini = u+1;
             addNode(k,v,u);
             return v;
         }
@@ -105,15 +104,19 @@ public:
             int k = key;
 
             removeNode(node);
+            if(mini == u && !cnt.count(u))mini = u+1;
             addNode(k,value,u);
         }
         else{
             if(mp.size() == cap){
-                removeHead();
+                Node* node = toHead[mini]->next;
+                removeNode(node);
                 addNode(key,value,0);
+                mini = 1;
             }
             else{
                 addNode(key,value,0);
+                mini = 1;
             }
         }
     }
