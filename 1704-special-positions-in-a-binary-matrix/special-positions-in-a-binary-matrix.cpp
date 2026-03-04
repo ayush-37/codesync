@@ -1,30 +1,27 @@
 class Solution {
 public:
     int numSpecial(vector<vector<int>>& mat) {
-        int ans = 0, n = mat.size(),m = mat[0].size();
+        int n = mat.size(), m = mat[0].size();
+        vector<int> row(n,0),col(m,0);
+
         for(int i = 0; i < n; i++){
-            bool mainflag = false;
             for(int j = 0; j < m; j++){
                 if(mat[i][j] == 1){
-                    bool flag = false;
-                    for(int k = 0; k < m; k++){
-                        if(k != j && mat[i][k] == 1){
-                            flag = true;
-                            mainflag = true;
-                            break;
-                        }
-                    }
-                    if(flag)break;
-                    for(int k = 0; k < n; k++){
-                        if(k != i && mat[k][j] == 1){
-                            flag = true;
-                            break;
-                        }
-                    }
-
-                    if(!flag)ans++;
+                    row[i]++;
+                    col[j]++;
                 }
-                if(mainflag)break;
+            }
+        }
+
+        int ans = 0;
+        for(int i = 0; i < n; i++){
+            if(row[i] == 1){
+                for(int j = 0; j < m; j++){
+                    if(col[j] == 1 && mat[i][j] == 1){
+                        ans++;
+                        break;
+                    }
+                }
             }
         }
         return ans;
