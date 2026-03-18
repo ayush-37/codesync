@@ -1,39 +1,45 @@
 class Solution {
 public:
     int longestValidParentheses(string s) {
-        int cntOpen = 0, cntClose = 0;
-        int ans = 0, n = s.size();
-        for(int i = 0; i < n; i++){
-            if(s[i] == '(')cntOpen++;
-            else cntClose++;
-
-            if(cntOpen == cntClose)ans = max(ans, cntOpen+cntClose);
-
-            if(cntClose > cntOpen){
-                cntOpen = 0;
-                cntClose = 0;
+        int n = s.size();
+        vector<int> dp(n, 0);
+        int ans = 0;
+        for(int i = 1; i < n; i++){
+            if(s[i] == ')'){
+                if(s[i-1] == '('){
+                    dp[i] = 2;
+                    if(i-2 >= 0)dp[i] += dp[i-2];
+                }
+                else{
+                    int ind = i - dp[i-1] - 1;
+                    if(ind >= 0 && s[ind] == '('){
+                        dp[i] = 2 + dp[i-1];
+                        if(ind-1 >= 0) dp[i] += dp[ind-1];
+                    }
+                }
             }
-        }
-        cntOpen = 0, cntClose = 0;
-        for(int i = n-1; i >= 0; i--){
-            if(s[i] == '(')cntOpen++;
-            else cntClose++;
 
-            if(cntOpen == cntClose)ans = max(ans, cntOpen+cntClose);
-
-            if(cntOpen > cntClose){
-                cntOpen = 0;
-                cntClose = 0;
-            }
+            ans = max(ans,dp[i]);
         }
+
         return ans;
     }
 };
 
-
 /*
-“I use a two-pass linear scan. In the first pass, I track open and close brackets and reset when closing exceeds opening. This catches invalid prefixes.
-In the second pass, I reverse the scan to handle extra opening brackets. This ensures all valid substrings are considered.”
+⏱️ Complexity
+
+Time: O(n)
+
+Space: O(n)
+
+🧠 Interview Explanation (clean version)
+
+“I define dp[i] as the longest valid substring ending at i.
+If I see ‘()’, I extend by 2.
+If I see ‘))’, I check if I can match it with a previous ‘(’ by jumping back using dp[i-1].
+This allows me to build solutions incrementally in O(n).”
+
 
 
 */
