@@ -1,28 +1,39 @@
 class Solution {
 public:
-int solve(int i, string &s) {
-    if(i >= s.size() || s[i] == ')') return 0;
-
-        int balance = 0;
-
-        for(int j = i; j < s.size(); j++){
-            if(s[j] == '(') balance++;
-            else balance--;
-
-            if(balance == 0){
-                return (j - i + 1) + solve(j + 1, s);
-            }
-
-            if(balance < 0) break;
-        }
-
-        return 0;
-    }
     int longestValidParentheses(string s) {
+        int cntOpen = 0, cntClose = 0;
         int ans = 0, n = s.size();
         for(int i = 0; i < n; i++){
-            ans = max(ans, solve(i, s));
+            if(s[i] == '(')cntOpen++;
+            else cntClose++;
+
+            if(cntOpen == cntClose)ans = max(ans, cntOpen+cntClose);
+
+            if(cntClose > cntOpen){
+                cntOpen = 0;
+                cntClose = 0;
+            }
+        }
+        cntOpen = 0, cntClose = 0;
+        for(int i = n-1; i >= 0; i--){
+            if(s[i] == '(')cntOpen++;
+            else cntClose++;
+
+            if(cntOpen == cntClose)ans = max(ans, cntOpen+cntClose);
+
+            if(cntOpen > cntClose){
+                cntOpen = 0;
+                cntClose = 0;
+            }
         }
         return ans;
     }
 };
+
+
+/*
+“I use a two-pass linear scan. In the first pass, I track open and close brackets and reset when closing exceeds opening. This catches invalid prefixes.
+In the second pass, I reverse the scan to handle extra opening brackets. This ensures all valid substrings are considered.”
+
+
+*/
