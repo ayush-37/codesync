@@ -1,40 +1,36 @@
 class Solution {
 public:
     using ll = long long;
-    const int mod = 1e9 + 7;
-    pair<ll,ll> def = {LLONG_MIN, LLONG_MAX};
-    vector<vector<pair<ll,ll>>> memo;;
-
-    pair<ll,ll> solve(int x, int y, vector<vector<int>>& grid){
-        int n = grid.size(), m = grid[0].size();
-
-        if(x == n-1 && y == m-1){
-            return memo[x][y] = {(ll)grid[x][y], grid[x][y]};
-        }
-
-        if(memo[x][y] != def)return memo[x][y];
-
-        ll curr = grid[x][y];
-        ll maxi = LLONG_MIN, mini = LLONG_MAX;
-        if(x+1 < n){
-            pair<ll,ll> p = solve(x+1,y,grid);
-            maxi = max({maxi, p.first*curr, p.second*curr});
-            mini = min({mini, p.first*curr, p.second*curr});
-        }
-        if(y+1 < m){
-            pair<ll,ll> p = solve(x,y+1,grid);
-            maxi = max({maxi, p.first*curr, p.second*curr});
-            mini = min({mini, p.first*curr, p.second*curr});
-        }
-
-        return memo[x][y] = {maxi,mini};
-    }
-
     int maxProductPath(vector<vector<int>>& grid) {
         int n = grid.size(), m = grid[0].size();
-        memo.assign(n,vector<pair<ll,ll>> (m,{LLONG_MIN,LLONG_MAX}));
-        pair<ll,ll> ans = solve(0,0,grid);
-        if(ans.first < 0)return -1;
-        else return (int)(ans.first%mod);
+        const int mod = 1e9 + 7;
+
+        vector<vector<pair<ll,ll>>> dp(n, vector<pair<ll,ll>> (m,{LLONG_MIN, LLONG_MAX}));
+        dp[0][0] = {grid[0][0], grid[0][0]};
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                if(i == 0 && j == 0)continue;
+
+                ll maxi = LLONG_MIN, mini = LLONG_MAX;
+                ll curr = grid[i][j];
+
+                if(j-1 >= 0){
+                    maxi = max({maxi, curr*dp[i][j-1].first, curr*dp[i][j-1].second});
+                    mini = min({mini, curr*dp[i][j-1].first, curr*dp[i][j-1].second});
+                }
+
+                if(i-1 >= 0){
+                    maxi = max({maxi, curr*dp[i-1][j].first, curr*dp[i-1][j].second});
+                    mini = min({mini, curr*dp[i-1][j].first, curr*dp[i-1][j].second});
+                }
+
+                dp[i][j] = {maxi,mini};
+            }
+        }
+
+        ll res = dp[n-1][m-1].first;
+
+        if(res < 0)return -1;
+        else return (int)(dp[n-1][m-1].first%mod);
     }
 };
