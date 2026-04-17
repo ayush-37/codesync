@@ -1,28 +1,26 @@
+/*
+Complexity
+Time: O(n × digits) ≈ O(n)
+Space: O(n)
+*/
+
 class Solution {
 public:
     int minMirrorPairDistance(vector<int>& nums) {
+        unordered_map<int,int> mp;
         int n = nums.size();
-        unordered_map<int,set<int>> mp;
-        for(int i = 0; i < n; i++){
-            mp[nums[i]].insert(i);
-        }
-
         int ans = INT_MAX;
         for(int i = 0; i < n; i++){
-            int temp = nums[i];
-            int sum = 0;
+            if(mp.count(nums[i]))ans = min(ans,abs(i-mp[nums[i]]));
+            int temp = nums[i],sum = 0;
             while(temp){
                 int r = temp%10;
-                sum *= 10;
-                sum += r;
-                temp/=10;
+                sum = sum*10 + r;
+                temp /= 10;
             }
-
-            if(mp.count(sum)){
-                auto itr = mp[sum].upper_bound(i);
-                if(itr != mp[sum].end())ans = min(ans,abs(i - *itr));
-            }
+            mp[sum] = i;
         }
+
         if(ans == INT_MAX)return -1;
         else return ans;
     }
