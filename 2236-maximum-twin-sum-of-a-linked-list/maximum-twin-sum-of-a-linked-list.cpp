@@ -12,17 +12,12 @@ class Solution {
 public:
     int pairSum(ListNode* head) {
         int len = 0;
-        ListNode* temp = head;
-        while(temp){
-            len++;
-            temp = temp->next;
+        ListNode* slow = head,*fast = head;
+        while(fast->next && fast->next->next){
+            slow = slow->next;
+            fast = fast->next->next;
         }
-        len/=2;
-        ListNode* prev = NULL, *nxt = NULL;
-        ListNode* curr = head;
-        while(len--){
-            curr = curr->next;
-        }
+        ListNode* curr = slow, *prev = NULL, *nxt;
         ListNode* revHead;
         while(curr){
             nxt = curr->next;
@@ -32,7 +27,7 @@ public:
             curr = nxt;
         }
 
-        temp = head;
+        ListNode* temp = head;
         int ans = INT_MIN;
         while(temp && revHead){
             ans = max(ans,temp->val + revHead->val);
