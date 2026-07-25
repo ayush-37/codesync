@@ -13,8 +13,7 @@ public:
         long long currTime = 0,cnt = 0;
         vector<int> ans;
         while(!task.empty()){
-            // at time i which servers finishes their tasks
-            currTime = max(currTime, (long long)cnt);
+            currTime = max(currTime, (long long)cnt); // If you already have free servers, currTime just stays aligned with the current task’s arrival time j.
             while(!busy.empty() && get<0>(busy.top()) <= currTime){
                 auto [fTime,wt,ind] = busy.top();
                 busy.pop();
