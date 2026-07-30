@@ -1,26 +1,14 @@
 class Solution {
 public:
-    unordered_map<string, int> mp;
     int numTrees(int n) {
-        generate(1,n);
-        string temp = to_string(1) + "_" + to_string(n);
-        return mp[temp];
-    }
-
-    int generate(int start, int end){
-
-        string temp = to_string(start) + "_" + to_string(end);
-
-        if(start > end)return mp[temp] = 1;
-        if(mp.find(temp) != mp.end())return mp[temp];
-
-        int combn = 0;
-        for(int i = start; i <= end; i++){
-            int left = generate(start,i-1);
-            int right = generate(i+1,end);
-            combn += left*right;
+    vector<int> dp(n+1,0);
+    // base case
+    dp[0] = 1, dp[1] = 1;
+    for(int root = 2; root <= n; root++){
+        for(int node = 1; node <= root; node++){
+            dp[root] += (dp[node-1] * dp[root-node]);
         }
-
-        return mp[temp] = combn;
+    }   
+    return dp[n];
     }
 };
