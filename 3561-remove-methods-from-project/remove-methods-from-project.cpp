@@ -28,18 +28,10 @@ public:
             if(i == k)continue;
 
             if(malicious[i] == 0){
-                queue<int> q;
-                q.push(i);
-                while(!q.empty()){
-                    int node = q.front();
-                    q.pop();
-                    for(auto nbr: graph[node]){
-                        if(malicious[nbr] == 1){
-                            canRemove = false;
-                            q.push(nbr);
-                            malicious[nbr] = 0;
-                        }
-                    }
+                for(auto nbr: graph[i]){
+                    if(malicious[nbr] == 1){
+                        canRemove = false;
+                     }
                 }
             }
         }
