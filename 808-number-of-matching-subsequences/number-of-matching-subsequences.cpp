@@ -1,35 +1,27 @@
 class Solution {
 public:
     int numMatchingSubseq(string s, vector<string>& words) {
-        unordered_map<char,vector<int>> mp;
-        int n = s.size();
-        for(int i = 0; i < n; i++){
-            mp[s[i]].push_back(i);
+        vector<vector<pair<int,int>>> wait(26);
+        for(int i = 0; i < words.size(); i++){
+            char first = words[i][0];
+            wait[first - 'a'].push_back({i,0});
         }
 
         int ans = 0;
 
-        for(int i = 0; i < words.size(); i++){
-            if (words[i].size() > s.size() || mp.find(words[i][0]) == mp.end())continue;
-
-            int l = mp[words[i][0]][0];
-            bool can = true;
-
-            for(int j = 1; j < words[i].size(); j++){
-                char c = words[i][j];
-                if (mp.find(c) == mp.end()){
-                    can = false;
-                    break;
+        for(int i = 0; i < s.size(); i++){
+            int ind = s[i]-'a';
+            auto curr = move(wait[ind]);
+            for(auto [wordIndex, pos] : curr){
+                pos++;
+                if(pos == words[wordIndex].size())ans++;
+                else{
+                    char c = words[wordIndex][pos];
+                    wait[c-'a'].push_back({wordIndex,pos});
                 }
-                int ind = upper_bound(mp[c].begin(),mp[c].end(), l) - mp[c].begin();
-                if(ind == mp[c].size()){
-                    can = false;
-                    break;
-                }
-                l = mp[c][ind];
             }
-            if(can)ans++;
         }
+
         return ans;
     }
 };
