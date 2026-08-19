@@ -1,46 +1,42 @@
 class Solution {
 public:
     int maxNumberOfFamilies(int n, vector<vector<int>>& reservedSeats) {
-        int row = 1, cnt = 0;
-        sort(reservedSeats.begin(), reservedSeats.end());
-        vector<int> pref(11,0);
-        int curr = reservedSeats[0][0], i = 0;
-        while(i < reservedSeats.size()){
-            if(reservedSeats[i][0] != curr){
-                row++;
-                for(int j = 1; j <= 10; j++){
-                    pref[j] = pref[j-1] + pref[j];
-                }
-                if(pref[5]-pref[1] == 0){
-                    cnt++;
-                    if(pref[9]-pref[5] == 0)cnt++;
-                }
-                else{
-                    if(pref[7] - pref[3] == 0)cnt++;
-                    else if(pref[9]-pref[5] == 0)cnt++;
-                }
+        unordered_map<int, int> mp;
 
-                for(int j = 0; j < 11; j++)pref[j] = 0;
-                pref[reservedSeats[i][1]] = 1;
-                curr = reservedSeats[i][0];
+        // Represent seats 2..9 using bits
+        for (auto &seat : reservedSeats) {
+            int row = seat[0];
+            int col = seat[1];
 
+            if (col >= 2 && col <= 9) {
+                mp[row] |= (1 << col);
             }
-            else{
-                pref[reservedSeats[i][1]] = 1;
-            }
-            i++;
         }
-        for(int j = 1; j <= 10; j++){
-            pref[j] = pref[j-1] + pref[j];
+
+        int ans = 2 * (n - mp.size());
+
+        for (auto &[row, mask] : mp) {
+            bool left  = !(mask & (1 << 2)) &&
+                         !(mask & (1 << 3)) &&
+                         !(mask & (1 << 4)) &&
+                         !(mask & (1 << 5));
+
+            bool middle = !(mask & (1 << 4)) &&
+                          !(mask & (1 << 5)) &&
+                          !(mask & (1 << 6)) &&
+                          !(mask & (1 << 7));
+
+            bool right = !(mask & (1 << 6)) &&
+                         !(mask & (1 << 7)) &&
+                         !(mask & (1 << 8)) &&
+                         !(mask & (1 << 9));
+
+            if (left && right)
+                ans += 2;
+            else if (left || middle || right)
+                ans += 1;
         }
-        if(pref[5]-pref[1] == 0){
-            cnt++;
-            if(pref[9]-pref[5] == 0)cnt++;
-        }
-        else{
-            if(pref[7] - pref[3] == 0)cnt++;
-            else if(pref[9]-pref[5] == 0)cnt++;
-        }
-        return cnt + 2*(n-row);
+
+        return ans;
     }
 };
