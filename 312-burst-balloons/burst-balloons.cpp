@@ -1,23 +1,19 @@
 class Solution {
 public:
     int maxCoins(vector<int>& nums) {
-        nums.insert(nums.begin(), 1);
-        nums.push_back(1);
         int n = nums.size();
-        vector<vector<int>> dp(n, vector<int>(n,-1));
-        return solve(nums, 1, n-2, dp);
-    }
-
-    int solve(vector<int>& nums, int i, int j, vector<vector<int>>& dp){
-        if(i > j)return 0;
-        if(i == j)return nums[i-1]*nums[i]*nums[i+1];
-        if(dp[i][j] != -1)return dp[i][j];
-
-        dp[i][j] = INT_MIN;
-        for(int k = i; k <= j; k++){
-            int points = nums[i-1]*nums[k]*nums[j+1];
-            dp[i][j] = max(dp[i][j], points + solve(nums,i,k-1,dp) + solve(nums,k+1,j,dp));
+        vector<int> temp(n+2);
+        temp[0] = 1, temp[n+1] = 1;
+        for(int i = 1; i <= n; i++)temp[i] = nums[i-1];
+        vector<vector<int>> dp(n+2,vector<int>(n+2,0));
+        for(int len = 1; len <= n; len++){
+            for(int start = 1; start + len - 1 <= n; start++){
+                int end = start + len - 1;
+                for(int k = start; k <= end; k++){
+                    dp[start][end] = max(dp[start][end], temp[start-1] * temp[k] * temp[end+1] + dp[start][k-1] + dp[k+1][end]);
+                }
+            }
         }
-        return dp[i][j];
+        return dp[1][n];
     }
 };
