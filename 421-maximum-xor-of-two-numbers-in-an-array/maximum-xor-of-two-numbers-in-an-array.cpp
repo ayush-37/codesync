@@ -1,74 +1,51 @@
 class Solution {
 public:
 
-struct TreeNode{
-    int val;
-    TreeNode* left;
-    TreeNode* right;
+    struct TrieNode{
+        TrieNode* child[2];
+        TrieNode(){
+            child[0] = NULL, child[1] = 0;
+        }
+    };
 
-    TreeNode(){
-        val = -1;
-        left = NULL;
-        right = NULL;
-    }
+    struct Trie{
+        TrieNode* root;
+        Trie(){
+            root = new TrieNode();
+        }
 
-    TreeNode(int x){
-        val = x;
-        left = NULL;
-        right = NULL;
-    }
-};
+        void insert(int x){
+            TrieNode* node = root;
+            for(int i = 31; i >= 0; i--){
+                int bit = (x >> i) & 1;
+                if(node->child[bit] == NULL)node->child[bit] = new TrieNode();
+                node = node->child[bit];
+            }
+        }
+
+        int maxXor(int x){
+            TrieNode* node = root;
+            int res = 0;
+            for(int i = 31; i >= 0; i--){
+                int bit = (x >> i) & 1;
+                if(node->child[1-bit] != NULL){
+                    res |= (1 << i);
+                    node = node->child[1-bit];
+                }
+                else node = node->child[bit];
+            }
+
+            return res;
+        }
+    };
     int findMaximumXOR(vector<int>& nums) {
-        TreeNode* root = new TreeNode();
-
-        for(int i = 0; i < nums.size(); i++){
-            TreeNode* curr = root;
-            for(int j = 31; j >= 0; j--){
-                int dig = (nums[i]>>j)&1;
-                if(dig == 0){
-                    if(curr->left == NULL){
-                        curr->left = new TreeNode(dig);
-                    }
-                    curr = curr->left;
-                }
-                else{
-                    if(curr->right == NULL){
-                        curr->right = new TreeNode(dig);
-                    }
-                    curr = curr->right;
-                }
-            }
-        }
-
         int ans = 0;
-
-        for(int i = 0; i < nums.size(); i++){
-            int x = nums[i], y = 0;
-            TreeNode* curr = root;
-            for(int j = 31; j >= 0; j--){
-                int dig = (x >> j) & 1;
-                if(dig){
-                    if(curr->left != NULL){
-                        curr = curr->left;
-                    }
-                    else if (curr->right){
-                        y |= (1<<j);
-                        curr = curr->right;
-                    }
-                }
-                else{
-                    if(curr->right != NULL){
-                        y |= (1<<j);
-                        curr = curr->right;
-                    }
-                    else{
-                        curr = curr->left;
-                    }
-                }
-            }
-
-            ans = max(ans,x^y);
+        Trie trie;
+        for(auto x: nums){
+            trie.insert(x);
+            ans = max(ans, trie.maxXor(x));
         }
+
         return ans;
     }
 };
