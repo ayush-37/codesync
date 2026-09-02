@@ -1,87 +1,169 @@
 class Solution {
+/*
+ 1. Why n + m?
+
+Suppose:
+
+num1 = "123"
+num2 = "45"
+
+There are 3 digits and 2 digits.
+
+The result can have at most:
+
+3 + 2 = 5 digits
+
+For example:
+
+  999
+×  99
+-----
+98901
+
+So:
+
+vector<int> res(n + m, 0);
+
+creates:
+
+res = [0, 0, 0, 0, 0]
+
+Think of this as the places where the answer will eventually go:
+
+res:  [0][0][0][0][0]
+        ↑  ↑  ↑  ↑  ↑
+       10⁴ 10³ 10² 10¹ 10⁰
+2. The important part: positions
+
+Take:
+
+num1 = "123"
+num2 = "45"
+
+Indices are:
+
+num1:  1   2   3
+        0   1   2
+
+num2:  4   5
+        0   1
+
+Now consider multiplying:
+
+3 × 5
+
+These are at indices:
+
+i = 2
+j = 1
+
+Their product belongs near the right side of the result.
+
+We calculate:
+
+pos1 = i + j;
+pos2 = i + j + 1;
+
+Therefore:
+
+pos1 = 2 + 1 = 3
+pos2 = 2 + 1 + 1 = 4
+
+So:
+
+res = [0, 0, 0, 0, 0]
+                 ↑  ↑
+               pos1 pos2
+
+The product 3 × 5 = 15 gives:
+
+1 → carry
+5 → current digit
+
+So we put:
+
+res[3] += 1
+res[4] = 5
+
+giving:
+
+res = [0, 0, 0, 1, 5]
+3. Why i + j and i + j + 1?
+
+This is the trickiest part.
+
+Suppose:
+
+num1 = 123
+num2 = 45
+
+Normal multiplication is:
+
+       1 2 3
+   ×     4 5
+   -----------
+       6 1 5       ← 123 × 5
+     4 9 2         ← 123 × 4, shifted
+   -----------
+     5 5 3 5
+
+Every pair of digits has a specific decimal position.
+
+If digits are at indices i and j, their product affects positions around:
+
+i + j
+i + j + 1
+
+That's why we calculate:
+
+int pos1 = i + j;
+int pos2 = i + j + 1;
+
+Think of:
+
+pos1 = carry position
+pos2 = digit position
+ 
+ 
+ */   
 public:
-    vector<vector<pair<int,int>>> mul;
-    void helper(){
-        for(int i = 0; i < 10; i++){
-            for(int j = 0; j < 10; j++){
-                int m = i*j;
-                int d = m%10, c = m/10;
-                mul[i][j] = {d,c};
-            }
-        }
-    }
     string multiply(string num1, string num2) {
-        if(num1.size() < num2.size())return multiply(num2,num1);
-        if(num1 == "0" || num2 == "0")return "0";
-        mul.resize(10,vector<pair<int,int>>(10));
-        helper();
+        if (num1 == "0" || num2 == "0")
+            return "0";
 
-        string ans = "";
-        string prev(num1.size()+1,'0');
-        for(int j = num2.size()-1; j >= 0; j--){
-            string curr = "0";
-            int carry = 0;
-            for(int i = num1.size()-1; i >= 0; i--){
-                int id = num1[i] - '0', jd = num2[j] - '0';
-                auto[d,c] = mul[id][jd];
-                int nd = (d + carry) % 10;
-                int nc = (d + carry) / 10 + c;
-                char ch = '0' + nd;
-                curr.push_back(ch);
-                carry = nc;
+        int n = num1.size();
+        int m = num2.size();
+
+        vector<int> res(n + m, 0);
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+
+                int a = num1[i] - '0';
+                int b = num2[j] - '0';
+
+                int product = a * b;
+
+                int pos1 = i + j;
+                int pos2 = i + j + 1;
+
+                int sum = product + res[pos2];
+
+                res[pos2] = sum % 10;
+                res[pos1] += sum / 10;
             }
-            if(carry > 0){
-                curr += to_string(carry);
-            }
-            // cout<<curr<<endl;
-            // cout<<prev<<endl;
-
-            string addOp = add(curr, prev);
-            // cout<<addOp<<endl<<endl;
-            ans.push_back(addOp[0]);
-            addOp.erase(0,1);
-            prev = addOp;
-        }
-        ans += prev;
-        reverse(ans.begin(), ans.end());
-        ans.pop_back();
-        return ans;
-    }
-
-    string add(string a, string b){
-        int n = a.size(), m = b.size(), i = 0, j = 0;
-        int carry = 0;
-        string ans = "";
-        while(i < n && j < m){
-            int ai = a[i] - '0', bj = b[j] - '0';
-            int nd = (ai + bj + carry)%10;
-            int nc = (ai + bj + carry)/10;
-
-            ans.push_back('0' + nd);
-            carry = nc;
-            i++, j++;
         }
 
-        while(i < n){
-            int ai = a[i] - '0';
-            int nd = (ai + carry)%10;
-            int nc = (ai + carry)/10;
+        string ans;
 
-            ans.push_back('0' + nd);
-            carry = nc;
+        int i = 0;
+
+        while (i < res.size() && res[i] == 0)
             i++;
-        }
-        while(j < m){
-            int bj = b[j] - '0';
-            int nd = (bj + carry)%10;
-            int nc = (bj + carry)/10;
 
-            ans.push_back('0' + nd);
-            carry = nc;
-            j++;
-        }
+        while (i < res.size())
+            ans.push_back('0' + res[i++]);
 
-        if(carry != 0)ans += to_string(carry);
         return ans;
     }
 };
