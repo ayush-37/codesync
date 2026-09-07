@@ -1,20 +1,34 @@
 class Solution {
 public:
     int distinctSubseqII(string s) {
-        int n = s.size();
-        const int MOD = 1e9+7;
-        vector<int> dp(n+1,0);
-        vector<int> prev(26,-1);
-        for(int i = 1; i <= n; i++){
-            dp[i] = (2*dp[i-1] + 1) % MOD; // dp[i] = dp[i-1](seq till i-1) + dp[i-1](new seq on appending s[i-1] with seq till i-1) + 1(s[i-1])
+        const long long MOD = 1e9 + 7;
 
-            char c = s[i-1];
-            // if the character is already present then all the seq ending with s[i-1] will become duplicate so we have to subtract it 
-            if(prev[c - 'a'] != -1)dp[i] = (dp[i] - (dp[prev[c-'a'] -1]+1) + MOD)%MOD;
-            // (dp[prev[c-'a'] -1]+1) represents total number of subsequences before the previous index -> all the distinct seq before j = prev[c-'a'] and 1 empty seq
-            prev[c-'a'] = i;
+        // tot = total number of distinct NON-EMPTY subsequences
+        // formed so far.
+        long long tot = 0;
+
+        // last[c] = total number of distinct subsequences immediately after the PREVIOUS occurrence of character c.
+        // We use this to know how many subsequences will become duplicates when we encounter c again.
+        vector<long long> last(26, 0);
+
+        for(char x : s) {
+            int c = x - 'a';
+
+            // If we add x to every existing subsequence, we get 'tot' new subsequences, plus x itself.
+            // But last[c] of these were already created when the previous occurrence of c was processed.
+            // Therefore:
+            // new unique subsequences = tot + 1 - last[c]
+            long long add = (tot + 1 - last[c] + MOD) % MOD;
+
+            // Store the NEW total.
+            // This will be used when the same character appears again.
+            last[c] = (tot + 1) % MOD;
+
+            // Add the newly created unique subsequences to the total.
+            tot = (tot + add) % MOD;
+
         }
 
-        return dp[n];
+        return tot;
     }
 };
