@@ -57,31 +57,24 @@ public:
             }
         }
 
-        unordered_map<int,vector<int>> seg;
-        unordered_map<int,multiset<int>> seg_num;
-        for(int i = 0; i < n; i++){
-            int pa = du.findPar(i);
-            seg[pa].push_back(i);
-            seg_num[pa].insert(nums[i]);
+        unordered_map<int, vector<int>> seg;
+        for (int i = 0; i < n; i++) {
+            seg[du.findPar(i)].push_back(i);
         }
 
         vector<int> ans = nums;
-        for(int i = 0; i < n; i++){
-            if(seg[i].empty())continue;
-
-            int j = 0;
-            // cout<<i<<" -- ";
-            for(auto itr = seg_num[i].begin(); itr != seg_num[i].end(); itr++){
-                // cout<<seg[i][j]<<" ";
-                ans[seg[i][j]] = *itr;
-                j++;
+        for (auto& [root, idxs] : seg) {
+            vector<int> vals;
+            vals.reserve(idxs.size());
+            for (int idx : idxs) vals.push_back(nums[idx]);
+            sort(vals.begin(), vals.end());
+            for (int k = 0; k < (int)idxs.size(); k++) {
+                ans[idxs[k]] = vals[k];
             }
-            // for(auto x: ans)cout<<x<<" ";
-            // cout<<endl;
         }
-        
 
-        for(int i = 1; i < n; i++)if(ans[i] < ans[i-1])return false;
+        for (int i = 1; i < n; i++)
+            if (ans[i] < ans[i - 1]) return false;
         return true;
     }
 };
