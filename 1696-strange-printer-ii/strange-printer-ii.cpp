@@ -1,4 +1,16 @@
 class Solution {
+/*
+Each color can only be printed once, so its printed rectangle must cover all occurrences of that color. Therefore, every color has a fixed bounding rectangle determined by its minimum/maximum row and column.
+
+If another color appears inside this rectangle, then the current color must be printed before that other color. Otherwise, printing the current color later would overwrite the other color.
+
+This naturally forms a dependency graph between colors:
+
+Node = Color
+Edge A -> B means A must be printed before B
+If these dependencies contain a cycle, no valid printing order exists. Otherwise, a topological ordering gives a valid sequence of prints.
+
+*/
 public:
     bool isPrintable(vector<vector<int>>& targetGrid) {
         unordered_map<int,vector<int>> mp;
@@ -19,11 +31,12 @@ public:
             }
         }
 
-        unordered_map<int,vector<int>> graph;
+        vector<vector<int>> graph(61);
         vector<vector<int>> isEdge(61, vector<int>(61,0));
 
         for(auto [curr, v] : mp){
             int mnr = v[0], mxr = v[1], mnc = v[2], mxc = v[3];
+
             for(int i = mnr; i <= mxr; i++){
                 for(int j = mnc; j <= mxc; j++){
                     int col = targetGrid[i][j];
@@ -35,13 +48,15 @@ public:
             }
         }
 
-        vector<int> deg(61,0);
         int totCol = mp.size();
-        for(auto [node, nbrs]: graph){
-            for(int nbr: nbrs){
+
+        vector<int> deg(61,0);
+        for(int i = 1; i <= 60; i++){
+            for(int nbr: graph[i]){
                 deg[nbr]++;
             }
         }
+        
         queue<int> q;
         for(auto [node, _]: mp)if(deg[node] == 0)q.push(node);
 
