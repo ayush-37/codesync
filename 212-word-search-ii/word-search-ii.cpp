@@ -1,6 +1,6 @@
 class Solution {
 public:
-    set<string> ans;
+    unordered_set<string> ans;
     int n, m;
     vector<int> dir ={-1,0,1,0,-1};
     vector<vector<int>> vis;
